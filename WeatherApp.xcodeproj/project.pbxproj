@@ -101,6 +101,8 @@
 		04D80AC12E943879008D45BB /* WeatherApp */ = {
 			isa = PBXGroup;
 			children = (
+				04D80AF62E943932008D45BB /* View */,
+				04D80AF52E943929008D45BB /* Model */,
 				04D80AC22E943879008D45BB /* AppDelegate.swift */,
 				04D80AC42E943879008D45BB /* SceneDelegate.swift */,
 				04D80AC62E943879008D45BB /* ViewController.swift */,
@@ -128,6 +130,20 @@
 				04D80AE82E94387B008D45BB /* WeatherAppUITestsLaunchTests.swift */,
 			);
 			path = WeatherAppUITests;
+			sourceTree = "<group>";
+		};
+		04D80AF52E943929008D45BB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		04D80AF62E943932008D45BB /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
