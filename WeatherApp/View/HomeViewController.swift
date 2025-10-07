@@ -8,22 +8,14 @@
 import UIKit
 
 class HomeViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
     }
-    
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @IBAction func goToDetailsTapped(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let detailsVC = storyboard.instantiateViewController(withIdentifier: "DetailsVC") as? DetailsViewController {
+            self.navigationController?.pushViewController(detailsVC, animated: true)
+        }
     }
-    */
-
 }

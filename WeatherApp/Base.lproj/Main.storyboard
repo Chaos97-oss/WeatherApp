@@ -31,6 +31,17 @@
                     <view key="view" contentMode="scaleToFill" id="qdI-MI-3Sm">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="V6S-fc-mOA">
+                                <rect key="frame" x="134" y="409" width="125" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Go To Details"/>
+                                <connections>
+                                    <action selector="goToDetailsTapped:" destination="SY9-jV-rBs" eventType="touchUpInside" id="rhe-3f-106"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="jKf-Xi-uAi"/>
                         <color key="backgroundColor" systemColor="systemGreenColor"/>
                     </view>
