@@ -7,7 +7,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
         let splashVC = SplashViewController()
-        window.rootViewController = splashVC
+        let navController = UINavigationController(rootViewController: splashVC)
+        navController.navigationBar.isHidden = true
+        window.rootViewController = navController
         self.window = window
         window.makeKeyAndVisible()
     }

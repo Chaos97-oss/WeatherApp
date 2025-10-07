@@ -39,7 +39,7 @@ class HomeViewController: UIViewController {
         if let favorite = viewModel.favoriteCity {
             cityTextField.text = favorite
         }
-        
+        print("Navigating to details...")
         searchButton.addTarget(self, action: #selector(getWeather), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(saveFavorite), for: .touchUpInside)
     }
