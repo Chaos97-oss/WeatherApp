@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 class WeatherDetailViewController: UIViewController {
     private let viewModel: WeatherDetailViewModel
     
@@ -24,35 +23,60 @@ class WeatherDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        title = "Weather Details"
-        navigationController?.navigationBar.prefersLargeTitles = true
+        setDynamicGradientBackground()
         
-        weatherIcon.tintColor = .systemOrange
+        title = viewModel.cityName
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.largeTitleTextAttributes = [
+            .foregroundColor: UIColor.white
+        ]
+        
+        weatherIcon.tintColor = .white
         weatherIcon.contentMode = .scaleAspectFit
         
         descriptionLabel.text = viewModel.descriptionText
         descriptionLabel.textAlignment = .center
         descriptionLabel.font = .systemFont(ofSize: 22, weight: .medium)
+        descriptionLabel.textColor = .white
+        
         
         temperatureLabel.text = viewModel.temperatureText
         temperatureLabel.textAlignment = .center
-        temperatureLabel.font = .systemFont(ofSize: 30, weight: .bold)
+        temperatureLabel.font = .systemFont(ofSize: 60, weight: .bold)
+        temperatureLabel.textColor = .white
         
-        [weatherIcon, descriptionLabel, temperatureLabel].forEach { view.addSubview($0) }
-        [weatherIcon, descriptionLabel, temperatureLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        // Stack layout for neat vertical arrangement
+        let stackView = UIStackView(arrangedSubviews: [weatherIcon, descriptionLabel, temperatureLabel])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 20
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         
+        view.addSubview(stackView)
         NSLayoutConstraint.activate([
-            weatherIcon.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            weatherIcon.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100),
-            weatherIcon.widthAnchor.constraint(equalToConstant: 100),
-            weatherIcon.heightAnchor.constraint(equalToConstant: 100),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: weatherIcon.bottomAnchor, constant: 20),
-            descriptionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            temperatureLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
-            temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            weatherIcon.widthAnchor.constraint(equalToConstant: 120),
+            weatherIcon.heightAnchor.constraint(equalToConstant: 120)
         ])
+    }
+    
+    // MARK: - Gradient Helper
+    
+    private func setDynamicGradientBackground() {
+        let tempValue = viewModel.numericTemperature
+        
+        // Decide gradient colors based on temperature range
+        let gradient: (UIColor, UIColor)
+        if tempValue > 25 {
+            gradient = (.systemOrange, .systemRed)
+        } else if tempValue < 15 {
+            gradient = (.systemTeal, .systemBlue)
+        } else {
+            gradient = (.systemBlue, .systemGreen)
+        }
+        
+        // Apply gradient (from our UIExtensions.swift helper)
+        view.setGradientBackground(topColor: gradient.0, bottomColor: gradient.1)
     }
 }

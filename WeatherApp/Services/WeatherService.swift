@@ -12,7 +12,7 @@ protocol WeatherServiceProtocol {
 }
 
 class WeatherService: WeatherServiceProtocol {
-    private let apiKey = "e9d6687641933b115544043382649c0d"
+    private let apiKey = "307add1e92c344cd854ac28eac7c501b"
     
     func fetchWeather(for city: String, completion: @escaping (Result<Weather, Error>) -> Void) {
         let cityEscaped = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? city
@@ -23,6 +23,7 @@ class WeatherService: WeatherServiceProtocol {
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let error = error { completion(.failure(error)); return }
             guard let data = data else { return }
+            print("Raw JSON:", String(data: data, encoding: .utf8) ?? "no data")
             do {
                 let weather = try JSONDecoder().decode(Weather.self, from: data)
                 completion(.success(weather))

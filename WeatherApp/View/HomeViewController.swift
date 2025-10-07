@@ -31,17 +31,33 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Home"
-        view.backgroundColor = .systemGreen
-        navigationController?.navigationBar.prefersLargeTitles = true
-        setupLayout()
-        
-        if let favorite = viewModel.favoriteCity {
-            cityTextField.text = favorite
-        }
-        print("Navigating to details...")
-        searchButton.addTarget(self, action: #selector(getWeather), for: .touchUpInside)
-        saveButton.addTarget(self, action: #selector(saveFavorite), for: .touchUpInside)
+        title = "Search City"
+        view.setGradientBackground(topColor: .systemBlue, bottomColor: .white)
+
+        // Container card for search
+        let searchContainer = UIView()
+        searchContainer.translatesAutoresizingMaskIntoConstraints = false
+        searchContainer.backgroundColor = .white.withAlphaComponent(0.9)
+        searchContainer.makeCardStyle()
+        view.addSubview(searchContainer)
+
+        let searchField = UITextField()
+        searchField.placeholder = "Enter city (e.g. London)"
+        searchField.borderStyle = .none
+        searchField.font = UIFont.systemFont(ofSize: 18)
+        searchField.translatesAutoresizingMaskIntoConstraints = false
+        searchContainer.addSubview(searchField)
+
+        NSLayoutConstraint.activate([
+            searchContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            searchContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50),
+            searchContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85),
+            searchContainer.heightAnchor.constraint(equalToConstant: 60),
+
+            searchField.leadingAnchor.constraint(equalTo: searchContainer.leadingAnchor, constant: 16),
+            searchField.trailingAnchor.constraint(equalTo: searchContainer.trailingAnchor, constant: -16),
+            searchField.centerYAnchor.constraint(equalTo: searchContainer.centerYAnchor)
+        ])
     }
     
     private func setupLayout() {

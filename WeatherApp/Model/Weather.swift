@@ -9,6 +9,7 @@ import Foundation
 struct Weather: Codable {
     let main: Main
     let weather: [WeatherDescription]
+    let name: String?
     
     struct Main: Codable {
         let temp: Double

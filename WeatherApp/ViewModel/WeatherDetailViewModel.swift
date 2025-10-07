@@ -6,18 +6,28 @@
 //
 
 import Foundation
+
 class WeatherDetailViewModel {
     private let weather: Weather
     
     var temperatureText: String {
-        "\(weather.main.temp) °C"
+        "\(Int(weather.main.temp))°C"
+    }
+    
+    var numericTemperature: Double {
+        return weather.main.temp
     }
     
     var descriptionText: String {
         weather.weather.first?.description.capitalized ?? "No description"
     }
     
+    var cityName: String {
+        return weather.name ?? "Unknown"
+    }
+    
     init(weather: Weather) {
         self.weather = weather
     }
 }
+
