@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class WeatherDetailViewModel {
     private let weather: Weather
@@ -46,7 +47,7 @@ class WeatherDetailViewModel {
             return "Wind: N/A"
         }
     }
-
+    
     var cloudText: String {
         if let c = weather.clouds?.all {
             return "Clouds: \(c)%"
@@ -87,6 +88,7 @@ class WeatherDetailViewModel {
     init(weather: Weather) {
         self.weather = weather
     }
+    
 
     private func formatTime(_ timestamp: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
@@ -94,5 +96,53 @@ class WeatherDetailViewModel {
         formatter.timeStyle = .short
         formatter.timeZone = .current
         return formatter.string(from: date)
+    }
+}
+
+extension WeatherDetailViewModel {
+    func metricGrid() -> UIStackView {
+        func makeMetric(icon: String, title: String, value: String) -> UIView {
+            let iconView = UIImageView(image: UIImage(systemName: icon))
+            iconView.tintColor = .white
+            iconView.contentMode = .scaleAspectFit
+            iconView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+            iconView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            
+            let titleLabel = UILabel()
+            titleLabel.text = title
+            titleLabel.font = .systemFont(ofSize: 14, weight: .regular)
+            titleLabel.textColor = .white.withAlphaComponent(0.8)
+            
+            let valueLabel = UILabel()
+            valueLabel.text = value
+            valueLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+            valueLabel.textColor = .white
+            
+            let vertical = UIStackView(arrangedSubviews: [titleLabel, valueLabel])
+            vertical.axis = .vertical
+            vertical.alignment = .center
+            vertical.spacing = 2
+            
+            let stack = UIStackView(arrangedSubviews: [iconView, vertical])
+            stack.axis = .horizontal
+            stack.spacing = 8
+            stack.alignment = .center
+            return stack
+        }
+        
+        let humidity = makeMetric(icon: "drop.fill", title: "Humidity", value: humidityText)
+        let pressure = makeMetric(icon: "gauge.medium", title: "Pressure", value: pressureText)
+        let wind = makeMetric(icon: "wind", title: "Wind", value: windText)
+        let clouds = makeMetric(icon: "cloud.fill", title: "Clouds", value: cloudText)
+        let sunrise = makeMetric(icon: "sunrise.fill", title: "Sunrise", value: sunriseText)
+        let sunset = makeMetric(icon: "sunset.fill", title: "Sunset", value: sunsetText)
+        
+        let grid = UIStackView(arrangedSubviews: [humidity, pressure, wind, clouds, sunrise, sunset])
+        grid.axis = .vertical
+        grid.spacing = 10
+        grid.alignment = .fill
+        grid.distribution = .fillEqually
+        
+        return grid
     }
 }

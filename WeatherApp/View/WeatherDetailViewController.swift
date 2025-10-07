@@ -7,93 +7,180 @@
 
 import UIKit
 
-class WeatherDetailViewController: UIViewController {
-    private let viewModel: WeatherDetailViewModel
+final class WeatherDetailViewController: UIViewController {
 
+    private let viewModel: WeatherDetailViewModel
+    private let userDefaultsService = UserDefaultsService()
+    
     private let cityLabel = UILabel()
     private let tempLabel = UILabel()
     private let descriptionLabel = UILabel()
-    private let metricsStack = UIStackView()
+    private let favoriteButton = UIButton(type: .system)
 
     init(viewModel: WeatherDetailViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
+    
+    required init?(coder: NSCoder) { nil }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Weather Details"
-        view.setGradientBackground(topColor: .systemBlue, bottomColor: .white)
         setupUI()
+        updateBackground()
+        animateLabels()
     }
-
+    
+    // MARK: - UI Setup
     private func setupUI() {
-        // City
+        view.backgroundColor = .systemBackground
+        
+        // Labels
         cityLabel.text = viewModel.cityName
-        cityLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        cityLabel.font = .systemFont(ofSize: 34, weight: .bold)
+        cityLabel.textColor = .white
         cityLabel.textAlignment = .center
-
-        // Temperature
+        
         tempLabel.text = viewModel.temperatureText
         tempLabel.font = .systemFont(ofSize: 60, weight: .heavy)
+        tempLabel.textColor = colorForTemperature(viewModel.numericTemperature)
         tempLabel.textAlignment = .center
-
-        // Description
+        
         descriptionLabel.text = viewModel.descriptionText
         descriptionLabel.font = .systemFont(ofSize: 20, weight: .medium)
+        descriptionLabel.textColor = .white
         descriptionLabel.textAlignment = .center
-        descriptionLabel.textColor = .darkGray
-
-        // Metrics icons (SF Symbols)
-        let metrics = [
-            createMetricRow(icon: "thermometer.sun.fill", title: viewModel.feelsLikeText),
-            createMetricRow(icon: "humidity.fill", title: viewModel.humidityText),
-            createMetricRow(icon: "wind", title: viewModel.windText),
-            createMetricRow(icon: "cloud.sun.fill", title: viewModel.cloudText),
-            createMetricRow(icon: "gauge", title: viewModel.pressureText),
-            createMetricRow(icon: "sunrise.fill", title: viewModel.sunriseText),
-            createMetricRow(icon: "sunset.fill", title: viewModel.sunsetText)
-        ]
-
-        metricsStack.axis = .vertical
-        metricsStack.spacing = 8
-        metricsStack.translatesAutoresizingMaskIntoConstraints = false
-
-        for m in metrics { metricsStack.addArrangedSubview(m) }
-
-        let stack = UIStackView(arrangedSubviews: [cityLabel, tempLabel, descriptionLabel, metricsStack])
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
-
+        
+        // Quick stats
+        let quickStats = UIStackView()
+        quickStats.axis = .horizontal
+        quickStats.alignment = .center
+        quickStats.distribution = .equalSpacing
+        quickStats.spacing = 16
+        let windView = makeQuickStat(icon: "wind", text: viewModel.windText)
+        let humidityView = makeQuickStat(icon: "humidity.fill", text: viewModel.humidityText)
+        let pressureView = makeQuickStat(icon: "gauge", text: viewModel.pressureText)
+        let cloudView = makeQuickStat(icon: "cloud.fill", text: viewModel.cloudText)
+        [windView, humidityView, pressureView, cloudView].forEach { quickStats.addArrangedSubview($0) }
+        quickStats.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Metric grid with blur background
+        let gridStack = viewModel.metricGrid()
+        let blurEffect = UIBlurEffect(style: .systemMaterialLight)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.layer.cornerRadius = 20
+        blurView.clipsToBounds = true
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.contentView.addSubview(gridStack)
+        gridStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            gridStack.leadingAnchor.constraint(equalTo: blurView.contentView.leadingAnchor, constant: 16),
+            gridStack.trailingAnchor.constraint(equalTo: blurView.contentView.trailingAnchor, constant: -16),
+            gridStack.topAnchor.constraint(equalTo: blurView.contentView.topAnchor, constant: 16),
+            gridStack.bottomAnchor.constraint(equalTo: blurView.contentView.bottomAnchor, constant: -16)
+        ])
+        
+        // Favorites button
+        favoriteButton.setTitle(userDefaultsService.isFavorite(city: viewModel.cityName) ? "Remove from Favorites" : "Add to Favorites", for: .normal)
+        favoriteButton.backgroundColor = .systemYellow
+        favoriteButton.setTitleColor(.black, for: .normal)
+        favoriteButton.layer.cornerRadius = 12
+        favoriteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        favoriteButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
+        favoriteButton.addTarget(self, action: #selector(favoriteTapped), for: .touchUpInside)
+        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Scrollable content stack
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        let contentStack = UIStackView(arrangedSubviews: [
+            cityLabel, tempLabel, descriptionLabel, quickStats, blurView, favoriteButton
+        ])
+        contentStack.axis = .vertical
+        contentStack.spacing = 20
+        contentStack.alignment = .center
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(contentStack)
+        
+        NSLayoutConstraint.activate([
+            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20),
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
+            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
+            blurView.widthAnchor.constraint(equalTo: contentStack.widthAnchor)
         ])
     }
-
-    private func createMetricRow(icon: String, title: String) -> UIView {
+    
+    // MARK: - Favorites Action
+    @objc private func favoriteTapped() {
+        if userDefaultsService.isFavorite(city: viewModel.cityName) {
+            userDefaultsService.removeFavoriteCity(viewModel.cityName)
+            favoriteButton.setTitle("Add to Favorites", for: .normal)
+        } else {
+            userDefaultsService.addFavoriteCity(viewModel.cityName)
+            favoriteButton.setTitle("Remove from Favorites", for: .normal)
+        }
+    }
+    
+    // MARK: - Helpers
+    private func makeQuickStat(icon: String, text: String) -> UIView {
         let iconView = UIImageView(image: UIImage(systemName: icon))
-        iconView.tintColor = .systemBlue
+        iconView.tintColor = .white
         iconView.contentMode = .scaleAspectFit
-        iconView.widthAnchor.constraint(equalToConstant: 28).isActive = true
-
+        iconView.widthAnchor.constraint(equalToConstant: 22).isActive = true
+        
         let label = UILabel()
-        label.text = title
-        label.font = .systemFont(ofSize: 16)
-        label.textColor = .label
-
+        label.text = text
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = .white
+        
         let stack = UIStackView(arrangedSubviews: [iconView, label])
         stack.axis = .horizontal
-        stack.alignment = .center
-        stack.spacing = 10
+        stack.spacing = 6
         return stack
+    }
+    
+    private func colorForTemperature(_ temp: Double) -> UIColor {
+        switch temp {
+        case ..<0: return .cyan
+        case 0..<15: return .systemTeal
+        case 15..<25: return .systemYellow
+        case 25..<35: return .systemOrange
+        default: return .systemRed
+        }
+    }
+    
+    private func updateBackground() {
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = view.bounds
+        gradientLayer.colors = [UIColor.systemBlue.cgColor, UIColor.systemIndigo.cgColor]
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
+        
+        let backgroundView = UIView(frame: view.bounds)
+        backgroundView.layer.insertSublayer(gradientLayer, at: 0)
+        backgroundView.alpha = 0.85
+        view.insertSubview(backgroundView, at: 0)
+    }
+    
+    private func animateLabels() {
+        cityLabel.alpha = 0
+        tempLabel.alpha = 0
+        descriptionLabel.alpha = 0
+        
+        UIView.animate(withDuration: 1.2, delay: 0.1, options: [.curveEaseInOut]) {
+            self.cityLabel.alpha = 1
+            self.tempLabel.alpha = 1
+            self.descriptionLabel.alpha = 1
+        }
     }
 }
