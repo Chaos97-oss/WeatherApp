@@ -9,90 +9,91 @@ import UIKit
 
 class WeatherDetailViewController: UIViewController {
     private let viewModel: WeatherDetailViewModel
-    private let userDefaultsService = UserDefaultsService()
+
+    private let cityLabel = UILabel()
+    private let tempLabel = UILabel()
     private let descriptionLabel = UILabel()
-    private let temperatureLabel = UILabel()
-    private let weatherIcon = UIImageView(image: UIImage(systemName: "cloud.sun.fill"))
-    private let favoriteButton = UIButton(type: .system)
-    
+    private let metricsStack = UIStackView()
+
     init(viewModel: WeatherDetailViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
-    required init?(coder: NSCoder) { fatalError() }
-    
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        setDynamicGradientBackground()
-        
-        title = viewModel.cityName
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationController?.navigationBar.largeTitleTextAttributes = [
-            .foregroundColor: UIColor.white
-        ]
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "star"),
-            style: .plain,
-            target: self,
-            action: #selector(addToFavorites)
-        )
-        navigationItem.rightBarButtonItem?.tintColor = .systemYellow
+        title = "Weather Details"
+        view.setGradientBackground(topColor: .systemBlue, bottomColor: .white)
         setupUI()
     }
-    
+
     private func setupUI() {
-        weatherIcon.tintColor = .white
-        weatherIcon.contentMode = .scaleAspectFit
-        
+        // City
+        cityLabel.text = viewModel.cityName
+        cityLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        cityLabel.textAlignment = .center
+
+        // Temperature
+        tempLabel.text = viewModel.temperatureText
+        tempLabel.font = .systemFont(ofSize: 60, weight: .heavy)
+        tempLabel.textAlignment = .center
+
+        // Description
         descriptionLabel.text = viewModel.descriptionText
+        descriptionLabel.font = .systemFont(ofSize: 20, weight: .medium)
         descriptionLabel.textAlignment = .center
-        descriptionLabel.font = .systemFont(ofSize: 22, weight: .medium)
-        descriptionLabel.textColor = .white
-        
-        temperatureLabel.text = viewModel.temperatureText
-        temperatureLabel.textAlignment = .center
-        temperatureLabel.font = .systemFont(ofSize: 60, weight: .bold)
-        temperatureLabel.textColor = .white
-        
-        favoriteButton.setTitle("Add to Favorites", for: .normal)
-        favoriteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
-        favoriteButton.tintColor = .white
-        favoriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
-        
-        let stackView = UIStackView(arrangedSubviews: [weatherIcon, descriptionLabel, temperatureLabel, favoriteButton])
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.spacing = 20
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(stackView)
+        descriptionLabel.textColor = .darkGray
+
+        // Metrics icons (SF Symbols)
+        let metrics = [
+            createMetricRow(icon: "thermometer.sun.fill", title: viewModel.feelsLikeText),
+            createMetricRow(icon: "humidity.fill", title: viewModel.humidityText),
+            createMetricRow(icon: "wind", title: viewModel.windText),
+            createMetricRow(icon: "cloud.sun.fill", title: viewModel.cloudText),
+            createMetricRow(icon: "gauge", title: viewModel.pressureText),
+            createMetricRow(icon: "sunrise.fill", title: viewModel.sunriseText),
+            createMetricRow(icon: "sunset.fill", title: viewModel.sunsetText)
+        ]
+
+        metricsStack.axis = .vertical
+        metricsStack.spacing = 8
+        metricsStack.translatesAutoresizingMaskIntoConstraints = false
+
+        for m in metrics { metricsStack.addArrangedSubview(m) }
+
+        let stack = UIStackView(arrangedSubviews: [cityLabel, tempLabel, descriptionLabel, metricsStack])
+        stack.axis = .vertical
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stack)
+
         NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            weatherIcon.widthAnchor.constraint(equalToConstant: 120),
-            weatherIcon.heightAnchor.constraint(equalToConstant: 120)
+            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
-    
-    @objc private func addToFavorites() {
-        userDefaultsService.saveFavoriteCity(viewModel.cityName)
-        let alert = UIAlertController(title: "Added!", message: "\(viewModel.cityName) saved to favorites.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-    
-    // MARK: - Gradient Helper
-    private func setDynamicGradientBackground() {
-        let tempValue = viewModel.numericTemperature
-        let gradient: (UIColor, UIColor)
-        if tempValue > 25 {
-            gradient = (.systemOrange, .systemRed)
-        } else if tempValue < 15 {
-            gradient = (.systemTeal, .systemBlue)
-        } else {
-            gradient = (.systemBlue, .systemGreen)
-        }
-        view.setGradientBackground(topColor: gradient.0, bottomColor: gradient.1)
+
+    private func createMetricRow(icon: String, title: String) -> UIView {
+        let iconView = UIImageView(image: UIImage(systemName: icon))
+        iconView.tintColor = .systemBlue
+        iconView.contentMode = .scaleAspectFit
+        iconView.widthAnchor.constraint(equalToConstant: 28).isActive = true
+
+        let label = UILabel()
+        label.text = title
+        label.font = .systemFont(ofSize: 16)
+        label.textColor = .label
+
+        let stack = UIStackView(arrangedSubviews: [iconView, label])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 10
+        return stack
     }
 }
