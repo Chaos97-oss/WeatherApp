@@ -10,7 +10,6 @@ import UIKit
 class WeatherDetailViewController: UIViewController {
     private let viewModel: WeatherDetailViewModel
     private let userDefaultsService = UserDefaultsService()
-    
     private let descriptionLabel = UILabel()
     private let temperatureLabel = UILabel()
     private let weatherIcon = UIImageView(image: UIImage(systemName: "cloud.sun.fill"))
@@ -32,7 +31,13 @@ class WeatherDetailViewController: UIViewController {
         navigationController?.navigationBar.largeTitleTextAttributes = [
             .foregroundColor: UIColor.white
         ]
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "star"),
+            style: .plain,
+            target: self,
+            action: #selector(addToFavorites)
+        )
+        navigationItem.rightBarButtonItem?.tintColor = .systemYellow
         setupUI()
     }
     
@@ -72,7 +77,7 @@ class WeatherDetailViewController: UIViewController {
     
     @objc private func addToFavorites() {
         userDefaultsService.saveFavoriteCity(viewModel.cityName)
-        let alert = UIAlertController(title: "Added", message: "\(viewModel.cityName) added to favorites.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Added!", message: "\(viewModel.cityName) saved to favorites.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }

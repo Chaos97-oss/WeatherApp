@@ -11,7 +11,7 @@ class SplashViewController: UIViewController {
     
     private let logoLabel: UILabel = {
         let label = UILabel()
-        label.text = "WeatherApp"
+        label.text = "WeatherApp 🌤"
         label.textColor = .white
         label.font = .boldSystemFont(ofSize: 30)
         label.alpha = 0
