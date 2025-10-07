@@ -21,9 +21,19 @@ class HomeViewModel {
         self.userDefaultsService = userDefaultsService
     }
     
-    func fetchWeather(for city: String, completion: @escaping (Result<Weather, Error>) -> Void) {
-        weatherService.fetchWeather(for: city, completion: completion)
-    }
+    func fetchWeather(for city: String, completion: @escaping (String) -> Void) {
+            weatherService.fetchWeather(for: city) { result in
+                switch result {
+                case .success(let weather):
+                    let description = weather.weather.first?.description.capitalized ?? "No description"
+                    let temperature = String(format: "%.1f°C", weather.main.temp)
+                    let weatherText = "\(description), \(temperature)"
+                    completion(weatherText)
+                case .failure(let error):
+                    completion("Error: \(error.localizedDescription)")
+                }
+            }
+        }
     
     func saveFavoriteCity(_ city: String) {
         userDefaultsService.saveFavoriteCity(city)

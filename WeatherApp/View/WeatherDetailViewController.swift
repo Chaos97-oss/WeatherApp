@@ -9,43 +9,18 @@ import UIKit
 
 
 class WeatherDetailViewController: UIViewController {
-    private let viewModel: WeatherDetailViewModel
-    
-    private let descriptionLabel: UILabel = UILabel()
-    private let temperatureLabel: UILabel = UILabel()
-    
-    init(viewModel: WeatherDetailViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
-    
+    @IBOutlet weak var cityLabel: UILabel!
+    @IBOutlet weak var detailsLabel: UILabel!
+    var weatherText: String?
+    var city: String?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemRed
-        title = "Weather Detail"
-        
-        descriptionLabel.text = viewModel.descriptionText
-        descriptionLabel.textAlignment = .center
-        descriptionLabel.font = .systemFont(ofSize: 22)
-        
-        temperatureLabel.text = viewModel.temperatureText
-        temperatureLabel.textAlignment = .center
-        temperatureLabel.font = .systemFont(ofSize: 22)
-        
-        view.addSubview(descriptionLabel)
-        view.addSubview(temperatureLabel)
-        
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            descriptionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            descriptionLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 150),
-            
-            temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            temperatureLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20)
-        ])
+        view.backgroundColor = .systemBackground
+        cityLabel.text = city ?? "—"
+        detailsLabel.text = weatherText ?? "No details"
+        detailsLabel.numberOfLines = 0
+        detailsLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        detailsLabel.textAlignment = .center
     }
 }
