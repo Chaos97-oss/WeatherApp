@@ -81,7 +81,8 @@ final class WeatherDetailViewController: UIViewController {
         ])
         
         // Favorites button
-        favoriteButton.setTitle(userDefaultsService.isFavorite(city: viewModel.cityName) ? "Remove from Favorites" : "Add to Favorites", for: .normal)
+        favoriteButton.setTitle(userDefaultsService.isFavorite(city: viewModel.cityName)
+                ? "Remove from Favorites" : "Add to Favorites", for: .normal)
         favoriteButton.backgroundColor = .systemYellow
         favoriteButton.setTitleColor(.black, for: .normal)
         favoriteButton.layer.cornerRadius = 12

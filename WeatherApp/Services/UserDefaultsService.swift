@@ -16,6 +16,14 @@ protocol UserDefaultsServiceProtocol {
 class UserDefaultsService: UserDefaultsServiceProtocol {
     private let key = "favoriteCities"
     
+    func isFavorite(city: String) -> Bool {
+           getFavoriteCities().contains { $0.caseInsensitiveCompare(city) == .orderedSame }
+       }
+       
+       func addFavoriteCity(_ city: String) {
+           saveFavoriteCity(city)
+       }
+    
     func saveFavoriteCity(_ city: String) {
         var favorites = getFavoriteCities()
         if !favorites.contains(where: { $0.caseInsensitiveCompare(city) == .orderedSame }) {
