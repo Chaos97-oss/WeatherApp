@@ -21,6 +21,10 @@ class HomeViewModel {
         self.userDefaultsService = userDefaultsService
     }
     
+    func getFavoriteCities() -> [String] {
+            return userDefaultsService.getFavoriteCities()
+        }
+    
     func fetchWeather(for city: String, completion: @escaping (Result<Weather, Error>) -> Void) {
         weatherService.fetchWeather(for: city, completion: completion)
     }

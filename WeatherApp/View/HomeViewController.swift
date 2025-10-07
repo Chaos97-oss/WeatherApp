@@ -114,23 +114,19 @@ class HomeViewController: UIViewController {
     }
     
     @objc private func openFavorites() {
-        guard let favorite = viewModel.favoriteCity else {
-            let alert = UIAlertController(title: "No Favorites Yet", message: "Search a city and tap Save to add one.", preferredStyle: .alert)
+        let favorites = viewModel.getFavoriteCities()
+        
+        if favorites.isEmpty {
+            let alert = UIAlertController(
+                title: "No Favorites Yet",
+                message: "Search a city and tap the star ⭐️ to add one.",
+                preferredStyle: .alert
+            )
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
-            return
+        } else {
+            let favoritesVC = FavoritesViewController()
+            navigationController?.pushViewController(favoritesVC, animated: true)
         }
-        
-        let alert = UIAlertController(
-            title: "Favorite City",
-            message: "Your favorite city is \(favorite).",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Get Weather", style: .default, handler: { _ in
-            self.cityTextField.text = favorite
-            self.getWeather()
-        }))
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(alert, animated: true)
     }
 }
