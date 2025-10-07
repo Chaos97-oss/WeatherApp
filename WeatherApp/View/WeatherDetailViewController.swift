@@ -11,8 +11,9 @@ import UIKit
 class WeatherDetailViewController: UIViewController {
     private let viewModel: WeatherDetailViewModel
     
-    private let descriptionLabel: UILabel = UILabel()
-    private let temperatureLabel: UILabel = UILabel()
+    private let descriptionLabel = UILabel()
+    private let temperatureLabel = UILabel()
+    private let weatherIcon = UIImageView(image: UIImage(systemName: "cloud.sun.fill"))
     
     init(viewModel: WeatherDetailViewModel) {
         self.viewModel = viewModel
@@ -23,29 +24,35 @@ class WeatherDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemRed
-        title = "Weather Detail"
+        view.backgroundColor = .systemBackground
+        title = "Weather Details"
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
+        weatherIcon.tintColor = .systemOrange
+        weatherIcon.contentMode = .scaleAspectFit
         
         descriptionLabel.text = viewModel.descriptionText
         descriptionLabel.textAlignment = .center
-        descriptionLabel.font = .systemFont(ofSize: 22)
+        descriptionLabel.font = .systemFont(ofSize: 22, weight: .medium)
         
         temperatureLabel.text = viewModel.temperatureText
         temperatureLabel.textAlignment = .center
-        temperatureLabel.font = .systemFont(ofSize: 22)
+        temperatureLabel.font = .systemFont(ofSize: 30, weight: .bold)
         
-        view.addSubview(descriptionLabel)
-        view.addSubview(temperatureLabel)
-        
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
+        [weatherIcon, descriptionLabel, temperatureLabel].forEach { view.addSubview($0) }
+        [weatherIcon, descriptionLabel, temperatureLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
-            descriptionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            descriptionLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 150),
+            weatherIcon.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            weatherIcon.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100),
+            weatherIcon.widthAnchor.constraint(equalToConstant: 100),
+            weatherIcon.heightAnchor.constraint(equalToConstant: 100),
             
-            temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            temperatureLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20)
+            descriptionLabel.topAnchor.constraint(equalTo: weatherIcon.bottomAnchor, constant: 20),
+            descriptionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            temperatureLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
 }

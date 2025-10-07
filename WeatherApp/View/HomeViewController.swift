@@ -33,6 +33,7 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         title = "Home"
         view.backgroundColor = .systemGreen
+        navigationController?.navigationBar.prefersLargeTitles = true
         setupLayout()
         
         if let favorite = viewModel.favoriteCity {
@@ -44,24 +45,36 @@ class HomeViewController: UIViewController {
     }
     
     private func setupLayout() {
-        view.addSubview(cityTextField)
-        view.addSubview(searchButton)
-        view.addSubview(saveButton)
+        let containerView = UIView()
+        containerView.backgroundColor = .white
+        containerView.layer.cornerRadius = 16
+        containerView.layer.shadowColor = UIColor.black.cgColor
+        containerView.layer.shadowOpacity = 0.1
+        containerView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        containerView.layer.shadowRadius = 6
         
-        cityTextField.translatesAutoresizingMaskIntoConstraints = false
-        searchButton.translatesAutoresizingMaskIntoConstraints = false
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(containerView)
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        [cityTextField, searchButton, saveButton].forEach { containerView.addSubview($0) }
+        [cityTextField, searchButton, saveButton].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
-            cityTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            cityTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100),
-            cityTextField.widthAnchor.constraint(equalToConstant: 250),
+            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            containerView.widthAnchor.constraint(equalToConstant: 300),
+            containerView.heightAnchor.constraint(equalToConstant: 200),
             
-            searchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            cityTextField.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            cityTextField.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            cityTextField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            cityTextField.heightAnchor.constraint(equalToConstant: 40),
+            
             searchButton.topAnchor.constraint(equalTo: cityTextField.bottomAnchor, constant: 20),
+            searchButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             
-            saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            saveButton.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20)
+            saveButton.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+            saveButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor)
         ])
     }
     
