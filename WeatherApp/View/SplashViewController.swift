@@ -10,14 +10,14 @@ import UIKit
 class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigateToHome()
-    }
+        view.backgroundColor = .systemBlue
 
-    private func navigateToHome() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            if let homeVC = storyboard.instantiateViewController(withIdentifier: "HomeVC") as? HomeViewController {
-                self.navigationController?.pushViewController(homeVC, animated: true)
+            if let homeVC = storyboard.instantiateViewController(withIdentifier: "HomeViewController") as? HomeViewController {
+                let nav = UINavigationController(rootViewController: homeVC)
+                nav.modalPresentationStyle = .fullScreen
+                self.present(nav, animated: true)
             }
         }
     }
