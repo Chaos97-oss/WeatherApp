@@ -80,16 +80,19 @@ final class WeatherDetailViewController: UIViewController {
             gridStack.bottomAnchor.constraint(equalTo: blurView.contentView.bottomAnchor, constant: -16)
         ])
         
-        // Favorites button
-        favoriteButton.setTitle(userDefaultsService.isFavorite(city: viewModel.cityName)
-                ? "Remove from Favorites" : "Add to Favorites", for: .normal)
+        favoriteButton.setTitle("Add to Favorites", for: .normal)
         favoriteButton.backgroundColor = .systemYellow
         favoriteButton.setTitleColor(.black, for: .normal)
         favoriteButton.layer.cornerRadius = 12
         favoriteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         favoriteButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        favoriteButton.addTarget(self, action: #selector(favoriteTapped), for: .touchUpInside)
+        favoriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
         favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+
+        // Width constraint for visibility
+        favoriteButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
+        favoriteButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        
         
         // Scrollable content stack
         let scrollView = UIScrollView()
@@ -130,6 +133,12 @@ final class WeatherDetailViewController: UIViewController {
             userDefaultsService.addFavoriteCity(viewModel.cityName)
             favoriteButton.setTitle("Remove from Favorites", for: .normal)
         }
+    }
+    
+    @objc private func addToFavorites() { userDefaultsService.saveFavoriteCity(viewModel.cityName);
+        let alert = UIAlertController(title: "Added", message: "\(viewModel.cityName) added to favorites.",
+        preferredStyle: .alert); alert.addAction(UIAlertAction(title: "OK", style: .default)); present(alert, animated: true)
+        
     }
     
     // MARK: - Helpers
