@@ -55,6 +55,12 @@ class HomeViewController: UIViewController {
         
         setupLayout()
         configureNavBar()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Favorites",
+            style: .plain,
+            target: self,
+            action: #selector(openFavorites)
+        )
     }
     
     private func setupLayout() {
@@ -93,6 +99,11 @@ class HomeViewController: UIViewController {
         favoriteButton.tintColor = .systemYellow
         navigationItem.rightBarButtonItem = favoriteButton
     }
+    
+//    @objc private func openFavorites() {
+//        let favoritesVC = FavoritesViewController()
+//        navigationController?.pushViewController(favoritesVC, animated: true)
+//    }
     
     @objc private func getWeather() {
         guard let city = cityTextField.text, !city.isEmpty else { return }

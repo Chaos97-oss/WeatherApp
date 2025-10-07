@@ -12,7 +12,7 @@ class HomeViewModel {
     private let userDefaultsService: UserDefaultsServiceProtocol
     
     var favoriteCity: String? {
-        userDefaultsService.getFavoriteCity()
+        userDefaultsService.getFavoriteCities().first
     }
     
     init(weatherService: WeatherServiceProtocol = WeatherService(),

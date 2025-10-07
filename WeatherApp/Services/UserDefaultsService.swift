@@ -9,17 +9,28 @@ import Foundation
 
 protocol UserDefaultsServiceProtocol {
     func saveFavoriteCity(_ city: String)
-    func getFavoriteCity() -> String?
+    func getFavoriteCities() -> [String]
+    func removeFavoriteCity(_ city: String)
 }
 
 class UserDefaultsService: UserDefaultsServiceProtocol {
-    private let key = "favoriteCity"
+    private let key = "favoriteCities"
     
     func saveFavoriteCity(_ city: String) {
-        UserDefaults.standard.set(city, forKey: key)
+        var favorites = getFavoriteCities()
+        if !favorites.contains(where: { $0.caseInsensitiveCompare(city) == .orderedSame }) {
+            favorites.append(city)
+            UserDefaults.standard.set(favorites, forKey: key)
+        }
     }
     
-    func getFavoriteCity() -> String? {
-        return UserDefaults.standard.string(forKey: key)
+    func getFavoriteCities() -> [String] {
+        return UserDefaults.standard.stringArray(forKey: key) ?? []
+    }
+    
+    func removeFavoriteCity(_ city: String) {
+        var favorites = getFavoriteCities()
+        favorites.removeAll { $0.caseInsensitiveCompare(city) == .orderedSame }
+        UserDefaults.standard.set(favorites, forKey: key)
     }
 }

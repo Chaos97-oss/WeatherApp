@@ -9,10 +9,12 @@ import UIKit
 
 class WeatherDetailViewController: UIViewController {
     private let viewModel: WeatherDetailViewModel
+    private let userDefaultsService = UserDefaultsService()
     
     private let descriptionLabel = UILabel()
     private let temperatureLabel = UILabel()
     private let weatherIcon = UIImageView(image: UIImage(systemName: "cloud.sun.fill"))
+    private let favoriteButton = UIButton(type: .system)
     
     init(viewModel: WeatherDetailViewModel) {
         self.viewModel = viewModel
@@ -31,6 +33,10 @@ class WeatherDetailViewController: UIViewController {
             .foregroundColor: UIColor.white
         ]
         
+        setupUI()
+    }
+    
+    private func setupUI() {
         weatherIcon.tintColor = .white
         weatherIcon.contentMode = .scaleAspectFit
         
@@ -39,14 +45,17 @@ class WeatherDetailViewController: UIViewController {
         descriptionLabel.font = .systemFont(ofSize: 22, weight: .medium)
         descriptionLabel.textColor = .white
         
-        
         temperatureLabel.text = viewModel.temperatureText
         temperatureLabel.textAlignment = .center
         temperatureLabel.font = .systemFont(ofSize: 60, weight: .bold)
         temperatureLabel.textColor = .white
         
-        // Stack layout for neat vertical arrangement
-        let stackView = UIStackView(arrangedSubviews: [weatherIcon, descriptionLabel, temperatureLabel])
+        favoriteButton.setTitle("Add to Favorites", for: .normal)
+        favoriteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        favoriteButton.tintColor = .white
+        favoriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
+        
+        let stackView = UIStackView(arrangedSubviews: [weatherIcon, descriptionLabel, temperatureLabel, favoriteButton])
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.spacing = 20
@@ -61,12 +70,16 @@ class WeatherDetailViewController: UIViewController {
         ])
     }
     
-    // MARK: - Gradient Helper
+    @objc private func addToFavorites() {
+        userDefaultsService.saveFavoriteCity(viewModel.cityName)
+        let alert = UIAlertController(title: "Added", message: "\(viewModel.cityName) added to favorites.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
     
+    // MARK: - Gradient Helper
     private func setDynamicGradientBackground() {
         let tempValue = viewModel.numericTemperature
-        
-        // Decide gradient colors based on temperature range
         let gradient: (UIColor, UIColor)
         if tempValue > 25 {
             gradient = (.systemOrange, .systemRed)
@@ -75,8 +88,6 @@ class WeatherDetailViewController: UIViewController {
         } else {
             gradient = (.systemBlue, .systemGreen)
         }
-        
-        // Apply gradient (from our UIExtensions.swift helper)
         view.setGradientBackground(topColor: gradient.0, bottomColor: gradient.1)
     }
 }
