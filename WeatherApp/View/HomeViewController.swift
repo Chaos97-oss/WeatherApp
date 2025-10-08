@@ -112,7 +112,7 @@ class HomeViewController: UIViewController {
                 )
 
                 cloud.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
-                // Insert just *below* the blur effect
+                
                 view.insertSubview(cloud, belowSubview: blurView)
                 animateCloud(cloud)
             }

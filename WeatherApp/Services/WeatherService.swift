@@ -12,7 +12,7 @@ protocol WeatherServiceProtocol {
 }
 
 class WeatherService: WeatherServiceProtocol {
-    private let apiKey = "307add1e92c344cd854ac28eac7c501b"
+    private let apiKey = Environment.openWeatherKey
     
     func fetchWeather(for city: String, completion: @escaping (Result<Weather, Error>) -> Void) {
         let cityEscaped = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? city

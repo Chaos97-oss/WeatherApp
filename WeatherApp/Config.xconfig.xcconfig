@@ -1,0 +1,10 @@
+//
+//  Config.xconfig.xcconfig
+//  WeatherApp
+//
+//  Created by Chaos on 10/8/25.
+//
+
+// Configuration settings file format documentation can be found at:
+
+OPENWEATHER_API_KEY = 307add1e92c344cd854ac28eac7c501b
