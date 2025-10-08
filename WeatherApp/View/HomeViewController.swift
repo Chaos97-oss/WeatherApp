@@ -81,7 +81,7 @@ class HomeViewController: UIViewController {
 
     private func setupClouds() {
         let cloudImageNames = ["cloud1", "cloud2"] // your cloud assets
-        let cloudCount = 20 // total clouds 
+        let cloudCount = 20 // total clouds
 
         for _ in 0..<cloudCount {
             let cloudName = cloudImageNames.randomElement() ?? "cloud1"
@@ -111,8 +111,8 @@ class HomeViewController: UIViewController {
 
     private func animateCloud(_ cloud: UIImageView) {
         let screenWidth = view.frame.width
-        let duration = Double.random(in: 20...50) // different speeds
-        let delay = Double.random(in: 0...10) // staggered start
+        let duration = Double.random(in: 20...50)
+        let delay = Double.random(in: 4...10) // staggered start
 
         // Start animation
         UIView.animate(
