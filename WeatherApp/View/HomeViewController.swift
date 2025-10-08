@@ -80,17 +80,27 @@ class HomeViewController: UIViewController {
     }
 
     private func setupClouds() {
-        let cloudImageNames = ["cloud1", "cloud2"] 
-        for cloudName in cloudImageNames {
+        let cloudImageNames = ["cloud1", "cloud2"] // your assets
+        let cloudCount = 7 // total clouds to spawn
+
+        for _ in 0..<cloudCount {
+            // Randomly pick an image from your assets
+            let cloudName = cloudImageNames.randomElement() ?? "cloud1"
             let cloud = UIImageView(image: UIImage(named: cloudName))
-            cloud.alpha = 0.3
+            
+            // Randomize appearance
+            cloud.alpha = CGFloat.random(in: 0.2...0.5)
             cloud.contentMode = .scaleAspectFit
-            cloud.frame = CGRect(x: CGFloat.random(in: 0...view.frame.width - 100),
-                                 y: CGFloat.random(in: 50...200),
-                                 width: 100,
-                                 height: 60)
+            
+            let width = CGFloat.random(in: 80...150)
+            let height = width * 0.6 // maintain aspect ratio
+            let xPos = CGFloat.random(in: -150...view.frame.width)
+            let yPos = CGFloat.random(in: 50...200)
+            cloud.frame = CGRect(x: xPos, y: yPos, width: width, height: height)
+            
             cloud.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
             view.insertSubview(cloud, at: 2) // above blur but below UI
+            
             animateCloud(cloud)
         }
     }
@@ -98,6 +108,7 @@ class HomeViewController: UIViewController {
     private func animateCloud(_ cloud: UIImageView) {
         let duration = Double.random(in: 20...40)
         let xEnd = view.frame.width + cloud.frame.width
+
         UIView.animate(withDuration: duration, delay: 0, options: [.repeat, .curveLinear]) {
             cloud.frame.origin.x = xEnd
         } completion: { _ in
