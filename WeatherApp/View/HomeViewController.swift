@@ -70,6 +70,16 @@ class HomeViewController: UIViewController {
     
     // MARK: - Background & Effects
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        view.subviews
+            .filter { $0.tag == 999 }
+            .forEach { $0.removeFromSuperview() }
+
+        setupClouds()
+    }
+
+    
     private func setupBlurBackground() {
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
         let blurView = UIVisualEffectView(effect: blurEffect)
@@ -80,32 +90,32 @@ class HomeViewController: UIViewController {
     }
 
     private func setupClouds() {
-        let cloudImageNames = ["cloud1", "cloud2"] // your cloud assets
-        let cloudCount = 20 // total clouds
+        let cloudImageNames = ["cloud1", "cloud2"]
+        let cloudCount = 20
 
-        for _ in 0..<cloudCount {
-            let cloudName = cloudImageNames.randomElement() ?? "cloud1"
-            let cloud = UIImageView(image: UIImage(named: cloudName))
-            
-            // Randomize appearance
-            cloud.alpha = CGFloat.random(in: 0.2...0.5)
-            cloud.contentMode = .scaleAspectFit
-            
-            // Randomize size
-            let width = CGFloat.random(in: 80...150)
-            let height = width * 0.6
-            cloud.frame = CGRect(
-                x: CGFloat.random(in: -200...view.frame.width),
-                y: CGFloat.random(in: 50...250),
-                width: width,
-                height: height
-            )
-            
-            cloud.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
-            view.insertSubview(cloud, at: 2) // keep behind main UI
-            
-            // Animate cloud with random speed
-            animateCloud(cloud)
+        // Make sure blur stays above clouds
+        if let blurView = view.subviews.first(where: { $0 is UIVisualEffectView }) {
+            for _ in 0..<cloudCount {
+                let cloudName = cloudImageNames.randomElement() ?? "cloud1"
+                let cloud = UIImageView(image: UIImage(named: cloudName))
+                cloud.tag = 999
+                cloud.alpha = CGFloat.random(in: 0.2...0.5)
+                cloud.contentMode = .scaleAspectFit
+
+                let width = CGFloat.random(in: 80...150)
+                let height = width * 0.6
+                cloud.frame = CGRect(
+                    x: CGFloat.random(in: -200...view.frame.width),
+                    y: CGFloat.random(in: 50...250),
+                    width: width,
+                    height: height
+                )
+
+                cloud.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
+                // Insert just *below* the blur effect
+                view.insertSubview(cloud, belowSubview: blurView)
+                animateCloud(cloud)
+            }
         }
     }
 

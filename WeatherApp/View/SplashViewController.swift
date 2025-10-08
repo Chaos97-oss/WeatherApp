@@ -13,7 +13,7 @@ class SplashViewController: UIViewController {
         let label = UILabel()
         label.text = "WeatherApp 🌤"
         label.textColor = .white
-        label.font = .boldSystemFont(ofSize: 30)
+        label.font = UIFont(name: "AvenirNext-BoldItalic", size: 32)
         label.alpha = 0
         return label
     }()
