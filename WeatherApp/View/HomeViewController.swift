@@ -80,11 +80,10 @@ class HomeViewController: UIViewController {
     }
 
     private func setupClouds() {
-        let cloudImageNames = ["cloud1", "cloud2"] // your assets
-        let cloudCount = 7 // total clouds to spawn
+        let cloudImageNames = ["cloud1", "cloud2"] // your cloud assets
+        let cloudCount = 20 // total clouds 
 
         for _ in 0..<cloudCount {
-            // Randomly pick an image from your assets
             let cloudName = cloudImageNames.randomElement() ?? "cloud1"
             let cloud = UIImageView(image: UIImage(named: cloudName))
             
@@ -92,28 +91,41 @@ class HomeViewController: UIViewController {
             cloud.alpha = CGFloat.random(in: 0.2...0.5)
             cloud.contentMode = .scaleAspectFit
             
+            // Randomize size
             let width = CGFloat.random(in: 80...150)
-            let height = width * 0.6 // maintain aspect ratio
-            let xPos = CGFloat.random(in: -150...view.frame.width)
-            let yPos = CGFloat.random(in: 50...200)
-            cloud.frame = CGRect(x: xPos, y: yPos, width: width, height: height)
+            let height = width * 0.6
+            cloud.frame = CGRect(
+                x: CGFloat.random(in: -200...view.frame.width),
+                y: CGFloat.random(in: 50...250),
+                width: width,
+                height: height
+            )
             
             cloud.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
-            view.insertSubview(cloud, at: 2) // above blur but below UI
+            view.insertSubview(cloud, at: 2) // keep behind main UI
             
+            // Animate cloud with random speed
             animateCloud(cloud)
         }
     }
 
     private func animateCloud(_ cloud: UIImageView) {
-        let duration = Double.random(in: 20...40)
-        let xEnd = view.frame.width + cloud.frame.width
+        let screenWidth = view.frame.width
+        let duration = Double.random(in: 20...50) // different speeds
+        let delay = Double.random(in: 0...10) // staggered start
 
-        UIView.animate(withDuration: duration, delay: 0, options: [.repeat, .curveLinear]) {
-            cloud.frame.origin.x = xEnd
-        } completion: { _ in
-            cloud.frame.origin.x = -cloud.frame.width
-        }
+        // Start animation
+        UIView.animate(
+            withDuration: duration,
+            delay: delay,
+            options: [.repeat, .curveLinear],
+            animations: {
+                cloud.frame.origin.x = screenWidth + cloud.frame.width
+            },
+            completion: { _ in
+                cloud.frame.origin.x = -cloud.frame.width
+            }
+        )
     }
     
     // MARK: - Layout
