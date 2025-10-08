@@ -31,13 +31,13 @@ class WeatherDetailViewController: UIViewController {
         navigationController?.navigationBar.largeTitleTextAttributes = [
             .foregroundColor: UIColor.white
         ]
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "star"),
-            style: .plain,
-            target: self,
-            action: #selector(addToFavorites)
-        )
-        navigationItem.rightBarButtonItem?.tintColor = .systemYellow
+//        navigationItem.rightBarButtonItem = UIBarButtonItem(
+//            image: UIImage(systemName: "star"),
+//            style: .plain,
+//            target: self,
+//            action: #selector(addToFavorites)
+//        )
+//        navigationItem.rightBarButtonItem?.tintColor = .systemYellow
         setupUI()
     }
     
