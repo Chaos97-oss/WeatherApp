@@ -9,81 +9,48 @@ import Foundation
 import UIKit
 
 class FavoriteCityCell: UITableViewCell {
-    
     static let identifier = "FavoriteCityCell"
     
-    private let blurView: UIVisualEffectView = {
-        let blur = UIBlurEffect(style: .systemMaterialLight)
-        let view = UIVisualEffectView(effect: blur)
-        view.layer.cornerRadius = 16
-        view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let cityLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .semibold)
-        label.textColor = .label
-        return label
-    }()
-    
-    private let tempLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .medium)
-        label.textColor = .secondaryLabel
-        return label
-    }()
-    
-    private let iconView: UIImageView = {
-        let iv = UIImageView()
-        iv.tintColor = .systemYellow
-        iv.contentMode = .scaleAspectFit
-        return iv
-    }()
-    
-    private let stack: UIStackView = {
-        let s = UIStackView()
-        s.axis = .horizontal
-        s.alignment = .center
-        s.spacing = 12
-        s.translatesAutoresizingMaskIntoConstraints = false
-        return s
-    }()
+    let iconView = UIImageView()
+    let cityLabel = UILabel()
+    let tempLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubview(blurView)
-        blurView.contentView.addSubview(stack)
         
-        stack.addArrangedSubview(cityLabel)
-        stack.addArrangedSubview(tempLabel)
-        stack.addArrangedSubview(iconView)
+        backgroundColor = UIColor.white.withAlphaComponent(0.2)
+        layer.cornerRadius = 16
+        clipsToBounds = true
+        
+        iconView.contentMode = .scaleAspectFit
+        iconView.tintColor = .white
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        
+        cityLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        cityLabel.textColor = .white
+        cityLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        tempLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        tempLabel.textColor = .white
+        tempLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentView.addSubview(iconView)
+        contentView.addSubview(cityLabel)
+        contentView.addSubview(tempLabel)
         
         NSLayoutConstraint.activate([
-            blurView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            blurView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            blurView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            blurView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            iconView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            iconView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 40),
+            iconView.heightAnchor.constraint(equalToConstant: 40),
             
-            stack.topAnchor.constraint(equalTo: blurView.contentView.topAnchor, constant: 12),
-            stack.bottomAnchor.constraint(equalTo: blurView.contentView.bottomAnchor, constant: -12),
-            stack.leadingAnchor.constraint(equalTo: blurView.contentView.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: blurView.contentView.trailingAnchor, constant: -16),
+            cityLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 16),
+            cityLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             
-            iconView.widthAnchor.constraint(equalToConstant: 30),
-            iconView.heightAnchor.constraint(equalToConstant: 30)
+            tempLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            tempLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
-        
-        backgroundColor = .clear
-        selectionStyle = .none
     }
     
     required init?(coder: NSCoder) { fatalError() }
-    
-    func configure(city: String, temp: String, iconName: String) {
-        cityLabel.text = city
-        tempLabel.text = temp
-        iconView.image = UIImage(systemName: iconName)
-    }
 }

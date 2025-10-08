@@ -34,41 +34,41 @@ final class WeatherDetailViewController: UIViewController {
     // MARK: - UI Setup
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        
-        // MARK: Labels
+
+        // Labels
         cityLabel.text = viewModel.cityName
         cityLabel.font = .systemFont(ofSize: 34, weight: .bold)
         cityLabel.textColor = .white
         cityLabel.textAlignment = .center
-        
+
         tempLabel.text = viewModel.temperatureText
         tempLabel.font = .systemFont(ofSize: 60, weight: .heavy)
         tempLabel.textColor = colorForTemperature(viewModel.numericTemperature)
         tempLabel.textAlignment = .center
-        
+
         descriptionLabel.text = viewModel.descriptionText
         descriptionLabel.font = .systemFont(ofSize: 20, weight: .medium)
         descriptionLabel.textColor = .white
         descriptionLabel.textAlignment = .center
-        
-        // MARK: Temperature + Cloud Icon Stack
+
+        // Temperature + Cloud Icon Stack
         let tempStack = UIStackView()
         tempStack.axis = .horizontal
         tempStack.spacing = 8
         tempStack.alignment = .center
         tempStack.translatesAutoresizingMaskIntoConstraints = false
-        
+
         let cloudIcon = UIImageView()
         cloudIcon.contentMode = .scaleAspectFit
         cloudIcon.tintColor = .white
         cloudIcon.image = UIImage(systemName: cloudIconName(for: viewModel.cloudsPercentage))
         cloudIcon.widthAnchor.constraint(equalToConstant: 50).isActive = true
         cloudIcon.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        
+
         tempStack.addArrangedSubview(tempLabel)
         tempStack.addArrangedSubview(cloudIcon)
-        
-        // MARK: Metric Grid with Improved Blur
+
+        // Metric Grid + Blur
         let gridStack = viewModel.metricGrid()
         let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
         let blurView = UIVisualEffectView(effect: blurEffect)
@@ -84,20 +84,8 @@ final class WeatherDetailViewController: UIViewController {
             gridStack.topAnchor.constraint(equalTo: blurView.contentView.topAnchor, constant: 16),
             gridStack.bottomAnchor.constraint(equalTo: blurView.contentView.bottomAnchor, constant: -16)
         ])
-        
-        // MARK: Favorites Button
-        favoriteButton.setTitle("Add to Favorites", for: .normal)
-        favoriteButton.backgroundColor = .systemYellow
-        favoriteButton.setTitleColor(.black, for: .normal)
-        favoriteButton.layer.cornerRadius = 12
-        favoriteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        favoriteButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        favoriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
-        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
-        favoriteButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
-        favoriteButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        
-        // MARK: Scroll View
+
+        // Scroll View
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
@@ -107,21 +95,28 @@ final class WeatherDetailViewController: UIViewController {
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        
-        // MARK: Content Stack
-        let contentStack = UIStackView(arrangedSubviews: [
+
+        // Content Stack
+        var arrangedSubviews: [UIView] = [
             cityLabel,
-            tempStack,         
+            tempStack,
             descriptionLabel,
-            blurView,
-            favoriteButton
-        ])
+            blurView
+        ]
+
+        // Only add favorite button if not already a favorite
+        if !userDefaultsService.isFavorite(city: viewModel.cityName) {
+            configureFavoriteButton()
+            arrangedSubviews.append(favoriteButton)
+        }
+
+        let contentStack = UIStackView(arrangedSubviews: arrangedSubviews)
         contentStack.axis = .vertical
         contentStack.spacing = 20
         contentStack.alignment = .center
         contentStack.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentStack)
-        
+
         NSLayoutConstraint.activate([
             contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
             contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20),
@@ -130,6 +125,39 @@ final class WeatherDetailViewController: UIViewController {
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
             blurView.widthAnchor.constraint(equalTo: contentStack.widthAnchor)
         ])
+    }
+
+    // MARK: - Configure Favorite Button
+    private func configureFavoriteButton() {
+        favoriteButton.setTitle("Add to Favorites", for: .normal)
+        favoriteButton.setTitleColor(.white, for: .normal)
+        favoriteButton.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)
+        favoriteButton.layer.cornerRadius = 22
+        favoriteButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        favoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+        favoriteButton.tintColor = .white
+        favoriteButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 0)
+        favoriteButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
+        favoriteButton.addTarget(self, action: #selector(addToFavoritesTapped), for: .touchUpInside)
+        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        favoriteButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
+        favoriteButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+    }
+
+    // MARK: - Favorite Button Action
+    @objc private func addToFavoritesTapped() {
+        userDefaultsService.addFavoriteCity(viewModel.cityName)
+        
+        let alert = UIAlertController(
+            title: "Added to Favorites",
+            message: "\(viewModel.cityName) has been added to your favorites.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+
+        // Remove button now that it's a favorite
+        favoriteButton.removeFromSuperview()
     }
 
     // MARK: - Helper for Cloud Icon

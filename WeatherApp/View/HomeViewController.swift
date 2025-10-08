@@ -61,10 +61,48 @@ class HomeViewController: UIViewController {
         title = "Home"
         navigationController?.navigationBar.prefersLargeTitles = true
         view.setGradientBackground(topColor: .systemBlue, bottomColor: .white)
-        
+        setupBlurBackground()
+            setupClouds()
         setupLayout()
         configureNavBar()
         setupSearchCompleter()
+    }
+    
+    // MARK: - Background & Effects
+
+    private func setupBlurBackground() {
+        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = view.bounds
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blurView.alpha = 0.7
+        view.insertSubview(blurView, at: 1)
+    }
+
+    private func setupClouds() {
+        let cloudImageNames = ["cloud1", "cloud2"] 
+        for cloudName in cloudImageNames {
+            let cloud = UIImageView(image: UIImage(named: cloudName))
+            cloud.alpha = 0.3
+            cloud.contentMode = .scaleAspectFit
+            cloud.frame = CGRect(x: CGFloat.random(in: 0...view.frame.width - 100),
+                                 y: CGFloat.random(in: 50...200),
+                                 width: 100,
+                                 height: 60)
+            cloud.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
+            view.insertSubview(cloud, at: 2) // above blur but below UI
+            animateCloud(cloud)
+        }
+    }
+
+    private func animateCloud(_ cloud: UIImageView) {
+        let duration = Double.random(in: 20...40)
+        let xEnd = view.frame.width + cloud.frame.width
+        UIView.animate(withDuration: duration, delay: 0, options: [.repeat, .curveLinear]) {
+            cloud.frame.origin.x = xEnd
+        } completion: { _ in
+            cloud.frame.origin.x = -cloud.frame.width
+        }
     }
     
     // MARK: - Layout
