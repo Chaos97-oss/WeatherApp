@@ -9,25 +9,25 @@ import Foundation
 import UIKit
 
 class FavoritesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
     private let tableView = UITableView()
     private let userDefaultsService = UserDefaultsService()
     private let weatherService = WeatherService()
-    
     private var favorites: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Favorite Cities"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.2)
         
         favorites = userDefaultsService.getFavoriteCities()
         
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FavoriteCityCell.self, forCellReuseIdentifier: FavoriteCityCell.identifier)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.rowHeight = 100
+        tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -44,47 +44,33 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         tableView.reloadData()
     }
     
-    // MARK: - Table View
+    // MARK: - TableView DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return favorites.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteCityCell.identifier, for: indexPath) as? FavoriteCityCell else {
+            return UITableViewCell()
+        }
+        
         let city = favorites[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteCityCell.identifier, for: indexPath) as! FavoriteCityCell
-        
-        // Show loading placeholder
-        cell.configure(city: city, temp: nil, iconName: nil)
-        
-        // Fetch weather preview asynchronously
         weatherService.fetchWeather(for: city) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let weather):
-                    let temp = "\(Int(round(weather.main.temp)))°C"
-                    let iconName = weather.weather.first?.icon ?? "cloud.fill"
+                    let temp = "\(Int(weather.main.temp))°C"
+                    let iconName = sfSymbolName(for: weather.weather.first?.icon ?? "")
                     cell.configure(city: city, temp: temp, iconName: iconName)
-                    
-                    // Optional: dynamic gradient based on temperature
-                    let colors: [UIColor] = {
-                        let temp = weather.main.temp
-                        switch temp {
-                        case ..<0: return [.cyan, .systemBlue]
-                        case 0..<15: return [.systemTeal, .systemBlue]
-                        case 15..<25: return [.systemYellow, .systemOrange]
-                        default: return [.systemOrange, .systemRed]
-                        }
-                    }()
-                    cell.setGradient(colors: colors)
-                    
-                case .failure:
-                    cell.configure(city: city, temp: "--°C", iconName: "cloud.fill")
+                case .failure(_):
+                    cell.configure(city: city, temp: "-", iconName: "cloud.fill")
                 }
             }
         }
         return cell
     }
     
+    // MARK: - TableView Delegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let city = favorites[indexPath.row]
         weatherService.fetchWeather(for: city) { result in
@@ -109,5 +95,22 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
             favorites.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
+    }
+}
+private func sfSymbolName(for weatherIcon: String) -> String {
+    switch weatherIcon {
+    case "01d": return "sun.max.fill"
+    case "01n": return "moon.fill"
+    case "02d": return "cloud.sun.fill"
+    case "02n": return "cloud.moon.fill"
+    case "03d", "03n": return "cloud.fill"
+    case "04d", "04n": return "smoke.fill"
+    case "09d", "09n": return "cloud.drizzle.fill"
+    case "10d": return "cloud.sun.rain.fill"       
+    case "10n": return "cloud.moon.rain.fill"
+    case "11d", "11n": return "cloud.bolt.fill"
+    case "13d", "13n": return "snow"
+    case "50d", "50n": return "cloud.fog.fill"
+    default: return "cloud.fill"
     }
 }
