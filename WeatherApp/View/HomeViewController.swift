@@ -69,29 +69,38 @@ class HomeViewController: UIViewController {
     
     // MARK: - Layout
     private func setupLayout() {
-        view.addSubview(searchContainer)
+        // Create vertical stack for search bar + button
+        let mainStack = UIStackView(arrangedSubviews: [searchContainer, getWeatherButton])
+        mainStack.axis = .vertical
+        mainStack.spacing = 30
+        mainStack.alignment = .center
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mainStack)
+        
+        // Add city text field inside search container
         searchContainer.addSubview(cityTextField)
-        view.addSubview(getWeatherButton)
         
-        cityTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        
+        cityTextField.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            searchContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            searchContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            searchContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85),
-            searchContainer.heightAnchor.constraint(equalToConstant: 70),
-            
             cityTextField.leadingAnchor.constraint(equalTo: searchContainer.leadingAnchor, constant: 16),
             cityTextField.trailingAnchor.constraint(equalTo: searchContainer.trailingAnchor, constant: -16),
-            cityTextField.centerYAnchor.constraint(equalTo: searchContainer.centerYAnchor),
-            
-            getWeatherButton.topAnchor.constraint(equalTo: searchContainer.bottomAnchor, constant: 30),
-            getWeatherButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            cityTextField.centerYAnchor.constraint(equalTo: searchContainer.centerYAnchor)
+        ])
+        
+        // Center the stack in the view
+        NSLayoutConstraint.activate([
+            mainStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            mainStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            searchContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85),
+            searchContainer.heightAnchor.constraint(equalToConstant: 70),
             getWeatherButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
             getWeatherButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        // Search suggestions table
+        // Add target for button
+        getWeatherButton.addTarget(self, action: #selector(getWeather), for: .touchUpInside)
+        
+        // Setup search suggestions table
         searchTableView.delegate = self
         searchTableView.dataSource = self
         searchTableView.register(UITableViewCell.self, forCellReuseIdentifier: "searchCell")
@@ -105,10 +114,10 @@ class HomeViewController: UIViewController {
             searchTableView.topAnchor.constraint(equalTo: searchContainer.bottomAnchor, constant: 4),
             searchTableView.leadingAnchor.constraint(equalTo: searchContainer.leadingAnchor),
             searchTableView.trailingAnchor.constraint(equalTo: searchContainer.trailingAnchor),
-            searchTableView.heightAnchor.constraint(equalToConstant: 200) // adjust as needed
+            searchTableView.heightAnchor.constraint(equalToConstant: 200)
         ])
         
-        getWeatherButton.addTarget(self, action: #selector(getWeather), for: .touchUpInside)
+        cityTextField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
     
     // MARK: - Search Completer
