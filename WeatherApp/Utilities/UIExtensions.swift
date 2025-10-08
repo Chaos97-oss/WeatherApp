@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 extension UIView {
-    /// Adds a smooth gradient background (Apple Weather style)
+
     func setGradientBackground(topColor: UIColor, bottomColor: UIColor) {
         self.layer.sublayers?.filter { $0.name == "gradientLayer" }.forEach { $0.removeFromSuperlayer() }
 
@@ -23,7 +23,7 @@ extension UIView {
         self.layer.insertSublayer(gradientLayer, at: 0)
     }
 
-    /// Adds a soft blur overlay (glassmorphism)
+
     func addBlurEffect(style: UIBlurEffect.Style = .systemThinMaterialLight) {
         let blurEffect = UIBlurEffect(style: style)
         let blurView = UIVisualEffectView(effect: blurEffect)
@@ -33,7 +33,7 @@ extension UIView {
         self.sendSubviewToBack(blurView)
     }
 
-    /// Adds corner radius and shadow for cards
+
     func makeCardStyle() {
         self.layer.cornerRadius = 16
         self.layer.masksToBounds = false

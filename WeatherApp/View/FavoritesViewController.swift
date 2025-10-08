@@ -24,8 +24,10 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(FavoriteCityCell.self, forCellReuseIdentifier: FavoriteCityCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.rowHeight = 100
+        tableView.separatorStyle = .none
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -48,8 +50,38 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = favorites[indexPath.row]
+        let city = favorites[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteCityCell.identifier, for: indexPath) as! FavoriteCityCell
+        
+        // Show loading placeholder
+        cell.configure(city: city, temp: nil, iconName: nil)
+        
+        // Fetch weather preview asynchronously
+        weatherService.fetchWeather(for: city) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let weather):
+                    let temp = "\(Int(round(weather.main.temp)))°C"
+                    let iconName = weather.weather.first?.icon ?? "cloud.fill"
+                    cell.configure(city: city, temp: temp, iconName: iconName)
+                    
+                    // Optional: dynamic gradient based on temperature
+                    let colors: [UIColor] = {
+                        let temp = weather.main.temp
+                        switch temp {
+                        case ..<0: return [.cyan, .systemBlue]
+                        case 0..<15: return [.systemTeal, .systemBlue]
+                        case 15..<25: return [.systemYellow, .systemOrange]
+                        default: return [.systemOrange, .systemRed]
+                        }
+                    }()
+                    cell.setGradient(colors: colors)
+                    
+                case .failure:
+                    cell.configure(city: city, temp: "--°C", iconName: "cloud.fill")
+                }
+            }
+        }
         return cell
     }
     
