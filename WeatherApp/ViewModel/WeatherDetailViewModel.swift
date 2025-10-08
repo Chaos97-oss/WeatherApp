@@ -55,6 +55,10 @@ class WeatherDetailViewModel {
             return "Clouds: N/A"
         }
     }
+    
+    var cloudsPercentage: Int? {
+        return weather.clouds?.all
+    }
 
     var sunriseText: String {
         if let ts = weather.sys?.sunrise {

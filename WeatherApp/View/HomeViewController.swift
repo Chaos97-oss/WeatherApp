@@ -119,7 +119,7 @@ class HomeViewController: UIViewController {
         if favorites.isEmpty {
             let alert = UIAlertController(
                 title: "No Favorites Yet",
-                message: "Search a city and tap the star ⭐️ to add one.",
+                message: "Search a city and Add Yours.",
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: "OK", style: .default))

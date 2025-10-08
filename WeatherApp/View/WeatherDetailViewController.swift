@@ -35,7 +35,7 @@ final class WeatherDetailViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
-        // Labels
+        // MARK: Labels
         cityLabel.text = viewModel.cityName
         cityLabel.font = .systemFont(ofSize: 34, weight: .bold)
         cityLabel.textColor = .white
@@ -51,25 +51,30 @@ final class WeatherDetailViewController: UIViewController {
         descriptionLabel.textColor = .white
         descriptionLabel.textAlignment = .center
         
-        // Quick stats
-        let quickStats = UIStackView()
-        quickStats.axis = .horizontal
-        quickStats.alignment = .center
-        quickStats.distribution = .equalSpacing
-        quickStats.spacing = 16
-        let windView = makeQuickStat(icon: "wind", text: viewModel.windText)
-        let humidityView = makeQuickStat(icon: "humidity.fill", text: viewModel.humidityText)
-        let pressureView = makeQuickStat(icon: "gauge", text: viewModel.pressureText)
-        let cloudView = makeQuickStat(icon: "cloud.fill", text: viewModel.cloudText)
-        [windView, humidityView, pressureView, cloudView].forEach { quickStats.addArrangedSubview($0) }
-        quickStats.translatesAutoresizingMaskIntoConstraints = false
+        // MARK: Temperature + Cloud Icon Stack
+        let tempStack = UIStackView()
+        tempStack.axis = .horizontal
+        tempStack.spacing = 8
+        tempStack.alignment = .center
+        tempStack.translatesAutoresizingMaskIntoConstraints = false
         
-        // Metric grid with blur background
+        let cloudIcon = UIImageView()
+        cloudIcon.contentMode = .scaleAspectFit
+        cloudIcon.tintColor = .white
+        cloudIcon.image = UIImage(systemName: cloudIconName(for: viewModel.cloudsPercentage))
+        cloudIcon.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        cloudIcon.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        tempStack.addArrangedSubview(tempLabel)
+        tempStack.addArrangedSubview(cloudIcon)
+        
+        // MARK: Metric Grid with Improved Blur
         let gridStack = viewModel.metricGrid()
-        let blurEffect = UIBlurEffect(style: .systemMaterialLight)
+        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
         let blurView = UIVisualEffectView(effect: blurEffect)
         blurView.layer.cornerRadius = 20
         blurView.clipsToBounds = true
+        blurView.backgroundColor = UIColor.white.withAlphaComponent(0.1)
         blurView.translatesAutoresizingMaskIntoConstraints = false
         blurView.contentView.addSubview(gridStack)
         gridStack.translatesAutoresizingMaskIntoConstraints = false
@@ -80,6 +85,7 @@ final class WeatherDetailViewController: UIViewController {
             gridStack.bottomAnchor.constraint(equalTo: blurView.contentView.bottomAnchor, constant: -16)
         ])
         
+        // MARK: Favorites Button
         favoriteButton.setTitle("Add to Favorites", for: .normal)
         favoriteButton.backgroundColor = .systemYellow
         favoriteButton.setTitleColor(.black, for: .normal)
@@ -88,13 +94,10 @@ final class WeatherDetailViewController: UIViewController {
         favoriteButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
         favoriteButton.addTarget(self, action: #selector(addToFavorites), for: .touchUpInside)
         favoriteButton.translatesAutoresizingMaskIntoConstraints = false
-
-        // Width constraint for visibility
         favoriteButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         favoriteButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
         
-        
-        // Scrollable content stack
+        // MARK: Scroll View
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
@@ -105,8 +108,13 @@ final class WeatherDetailViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
+        // MARK: Content Stack
         let contentStack = UIStackView(arrangedSubviews: [
-            cityLabel, tempLabel, descriptionLabel, quickStats, blurView, favoriteButton
+            cityLabel,
+            tempStack,         
+            descriptionLabel,
+            blurView,
+            favoriteButton
         ])
         contentStack.axis = .vertical
         contentStack.spacing = 20
@@ -122,6 +130,17 @@ final class WeatherDetailViewController: UIViewController {
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
             blurView.widthAnchor.constraint(equalTo: contentStack.widthAnchor)
         ])
+    }
+
+    // MARK: - Helper for Cloud Icon
+    private func cloudIconName(for clouds: Int?) -> String {
+        guard let clouds = clouds else { return "sun.max.fill" }
+        switch clouds {
+        case 0...20: return "sun.max.fill"
+        case 21...50: return "cloud.sun.fill"
+        case 51...80: return "cloud.fill"
+        default: return "smoke.fill"
+        }
     }
     
     // MARK: - Favorites Action
